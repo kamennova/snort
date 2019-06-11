@@ -3,108 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Snort</title>
+    <link href="https://fonts.googleapis.com/css?family=Cookie&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,900&display=swap" rel="stylesheet">
+    <link type="text/css" href="style.css" rel="stylesheet">
 
-    <style>
-        .game-name {
-            text-align: center;
-        }
-
-        .snort-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0 auto;
-            padding-top: 70px;
-        }
-
-        .snort-row {
-            display: flex;
-        }
-
-        span {
-            display: block;
-            width: 35px;
-            height: 35px;
-
-            border: 2px solid black;
-        }
-
-        span.rounded.top.left {
-            border-top-left-radius: 100%;
-        }
-
-        span.rounded.top.right {
-            border-top-right-radius: 100%;
-        }
-
-        span.rounded.bottom.left {
-            border-bottom-left-radius: 100%;
-        }
-
-        span.rounded.bottom.right {
-            border-bottom-right-radius: 100%;
-        }
-
-        span:not(.disabled) {
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
 
 <h1 class="game-name">Snort</h1>
 
-<section class="snort-score">
-<table>
-    <thead>
-    <tr>
-        <td></td>
-        <td>MAX</td>
-        <td>MIN</td>
-    </tr>
-    </thead>
-    <tbody>
-        <!--<tr class="possible">-->
-            <!--<td>Possible</td>-->
-            <!--<td></td>-->
-            <!--<td></td>-->
-        <!--</tr>-->
-
-        <!--<tr class="damage">-->
-            <!--<td>Damage</td>-->
-            <!--<td></td>-->
-            <!--<td></td>-->
-        <!--</tr>-->
-    </tbody>
-</table>
-</section>
 <div class="snort-container">
-    <div class="snort-row">
-        <span class="rounded top left"></span>
-        <span class="rounded top right"></span>
-    </div>
-    <div class="snort-row">
+    <p class="message"></p>
+    <div class="board">
+        <div class="snort-row">
+            <span class="rounded top left"></span>
+            <span class="rounded top right"></span>
+        </div>
+        <div class="snort-row">
 
-        <span class="rounded top left"></span>
-        <span></span>
-        <span></span>
-        <span class="rounded top right"></span>
+            <span class="rounded top left"></span>
+            <span></span>
+            <span></span>
+            <span class="rounded top right"></span>
 
-    </div>
-    <div class="snort-row">
+        </div>
+        <div class="snort-row">
 
-        <span class="rounded bottom left"></span>
-        <span></span>
-        <span></span>
-        <span class="rounded bottom right"></span>
-    </div>
-    <div class="snort-row">
+            <span class="rounded bottom left"></span>
+            <span></span>
+            <span></span>
+            <span class="rounded bottom right"></span>
+        </div>
+        <div class="snort-row">
 
-        <span class="rounded bottom left"></span>
-        <span class="rounded bottom right"></span>
+            <span class="rounded bottom left"></span>
+            <span class="rounded bottom right"></span>
+        </div>
     </div>
+
+    <section class="snort-score">
+        <table class="score-table">
+            <thead>
+            <tr>
+                <td>You</td>
+                <td>PC</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="score">
+                <td>0</td>
+                <td>0</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="btn hidden">Play again!</div>
 </div>
 <script src="snort.js"></script>
-<script>let snort = new Snort('.snort-container', ['red', 'blue']);</script>
+<script>let snort = new Snort('.snort-container', ['#ffb4c2', 'white'], 2);</script>
 </body>
 </html>

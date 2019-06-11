@@ -1,0 +1,78 @@
+.game-name {
+    font-family: 'Cookie', cursive;
+    text-align: center;
+    letter-spacing: 0.1em;
+    font-size: 69px;
+}
+
+.snort-container {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    align-content: center;
+    margin: 0 auto;
+    /*padding-top: 70px;*/
+}
+
+/*---*/
+
+.board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.snort-row {
+    display: flex;
+}
+
+span {
+    display: block;
+    width: 35px;
+    height: 35px;
+
+    border: 2px dashed #c38989;
+    background: #ffb3b34f;
+}
+
+span.rounded.top.left {
+    border-top-left-radius: 90%;
+}
+
+span.rounded.top.right {
+    border-top-right-radius: 90%;
+}
+
+span.rounded.bottom.left {
+    border-bottom-left-radius: 90%;
+}
+
+span.rounded.bottom.right {
+    border-bottom-right-radius: 90%;
+}
+
+span:not(.disabled) {
+    cursor: pointer;
+}
+
+span {
+    margin-top: -2px;
+    margin-left: -2px;
+}
+
+/*---*/
+
+.snort-score {
+    position: absolute;
+    right: 100px;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.score-table {
+    width: 170px;
+}
