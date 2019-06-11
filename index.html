@@ -12,6 +12,7 @@
 
 <h1 class="game-name">Snort</h1>
 
+<div class="confetti"></div>
 <div class="snort-container">
     <p class="message"></p>
     <div class="board">
@@ -58,9 +59,18 @@
         </table>
     </section>
 
+    <section class="level">
+        <p>~ Level ~</p>
+        <ul class="levels-list">
+            <li><span class="indicator"></span> Easy</li>
+            <li><span class="indicator"></span>Medium</li>
+            <li><span class="indicator"></span>Hard</li>
+        </ul>
+    </section>
+
     <div class="btn hidden">Play again!</div>
 </div>
 <script src="snort.js"></script>
-<script>let snort = new Snort('.snort-container', ['#ffb4c2', 'white'], 2);</script>
+<script>let snort = new Snort('.snort-container', ['#ffb4c2', 'white'], 3);</script>
 </body>
 </html>
