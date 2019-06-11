@@ -1,6 +1,6 @@
 class Snort {
 
-    constructor(board_selector, colors, depth) {
+    constructor(board_selector, colors, depth, turn = Players.MAX, level = Levels.easy) {
         this.colors = colors;
         this.board = [
             ['x', 'x'],
@@ -13,39 +13,67 @@ class Snort {
         this.message = document.querySelector('p.message');
 
         this.max_depth = depth;
-        this.next_move = {row: 1, cell: 1};
+        this.next_move = Best_first_move;
 
-        this.turn = Players.MAX;
+        this.turn = turn;
         this.init_board();
-        this.make_move();
+        this.levels_init(level);
+
+        if (this.turn === Players.MAX) {
+            this.make_move();
+        }
 
         this.container.querySelector('.btn').addEventListener('click', this.play_again.bind(this));
     }
 
-    play_again() {
-        this.container.querySelector('.btn').classList.add('hidden');
-        this.board = Snort_board;
-        this.clear_html_board();
+    levels_init(level) {
+        let levels = this.container.querySelectorAll('.levels-list li');
 
+        for (let i = 0; i < levels.length; i++) {
+            levels[i].querySelector('.indicator').addEventListener('click', this.change_level.bind(this, i));
+        }
+
+        levels[level].classList.add('active');
+    }
+
+    reset_score() {
+        this.container.querySelectorAll('tbody td')[0].innerText = '0';
+        this.container.querySelectorAll('tbody td')[1].innerText = '0';
+    }
+
+    change_level(i) {
+        this.container.querySelector('.levels-list li.active').classList.remove('active');
+        this.container.querySelector('.levels-list li:nth-child(' + (i + 1) + ')').classList.add('active');
+
+        this.max_depth = i + 1;
+        this.reset_score();
+        this.play_again();
+    }
+
+    play_again() {
+        // hide btn & message
         this.message.innerHTML = '';
+        this.container.querySelector('.btn').classList.add('hidden');
+
+        this.next_move = Best_first_move;
+        this.board = Snort_board.clone();
+        this.turn = Players.MAX;
+
+        this.clear_html_board();
+        this.make_move();
     }
 
     clear_html_board() {
-        let cells = this.container.querySelectorAll('span');
+        let cells = this.container.querySelectorAll('.board span');
 
         for (let i = 0; i < cells.length; i++) {
             cells[i].style.backgroundColor = null;
-            cells[i].style.classList = null;
+            cells[i].classList.remove('disabled');
         }
-
-        this.turn = Players.MAX;
-
-        this.make_move();
-
     }
 
     init_board() {
-        let cells = this.container.querySelectorAll('span');
+        let cells = this.container.querySelectorAll('.board span');
 
         for (let i = 0; i < cells.length; i++) {
             cells[i].addEventListener('click', this.player2_move.bind(this, cells[i], i));
@@ -231,6 +259,11 @@ class Snort {
         let cell;
         if (this.turn === Players.MAX) {
             cell = this.container.querySelectorAll('tbody td')[0];
+
+            document.body.classList.add('win');
+            let counter = setTimeout(function () {
+                document.body.classList.remove('win');
+            }, 4000);
         } else {
             cell = this.container.querySelectorAll('tbody td')[1];
         }
@@ -328,12 +361,16 @@ class Iterator {
 }
 
 const Players = {'MIN': 0, 'MAX': 1};
+const Levels = {easy: 0, medium: 1, hard: 2};
 const Cells_num = 12;
 const Snort_board = [['x', 'x'],
     ['x', 'x', 'x', 'x'],
     ['x', 'x', 'x', 'x'],
     ['x', 'x']
 ];
+const Best_first_move = {
+    row: 1, cell: 1
+};
 
 Array.prototype.clone = function () {
     let new_arr = [];
@@ -343,3 +380,15 @@ Array.prototype.clone = function () {
 
     return new_arr;
 };
+
+function confetti() {
+    const container = document.querySelector('.confetti');
+    const num = 100;
+
+    for (let i = 0; i < num; i++) {
+        let span = document.createElement('span');
+        container.appendChild(span);
+    }
+}
+
+// confetti();
