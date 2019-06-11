@@ -1,8 +1,6 @@
 class Snort {
 
     constructor(board_selector, colors, depth) {
-        this.board_selector = board_selector;
-        this.turn = Players['MAX'];
         this.colors = colors;
         this.board = [
             ['x', 'x'],
@@ -11,35 +9,47 @@ class Snort {
             ['x', 'x'],
         ];
 
+        this.container = document.querySelector(board_selector);
+        this.message = document.querySelector('p.message');
+
         this.max_depth = depth;
         this.next_move = {row: 1, cell: 1};
 
+        this.turn = Players.MAX;
         this.init_board();
         this.make_move();
+
+        this.container.querySelector('.btn').addEventListener('click', this.play_again.bind(this));
     }
 
-    set_iterator() {
-        this.curr = {
-            row: 0,
-            cell: 0
-        };
+    play_again() {
+        this.container.querySelector('.btn').classList.add('hidden');
+        this.board = Snort_board;
+        this.clear_html_board();
 
-        this.next_cell = () => {
-            this.curr.cell = ++this.curr.cell % this.board[this.curr.row].length;
-            if (this.curr.cell === 0) {
-                this.curr.row = ++this.curr.row % this.board.length;
-            }
-        };
+        this.message.innerHTML = '';
+    }
+
+    clear_html_board() {
+        let cells = this.container.querySelectorAll('span');
+
+        for (let i = 0; i < cells.length; i++) {
+            cells[i].style.backgroundColor = null;
+            cells[i].style.classList = null;
+        }
+
+        this.turn = Players.MAX;
+
+        this.make_move();
+
     }
 
     init_board() {
-        let cells = document.querySelectorAll(this.board_selector + ' span');
+        let cells = this.container.querySelectorAll('span');
 
         for (let i = 0; i < cells.length; i++) {
             cells[i].addEventListener('click', this.player2_move.bind(this, cells[i], i));
         }
-
-        this.set_iterator();
     }
 
     next_turn() {
@@ -57,7 +67,7 @@ class Snort {
 
         if (pos < 2) {
             row_pos = 0;
-            cell_pos = row_pos;
+            cell_pos = pos;
         } else if (pos < 6) {
             cell_pos = pos - 2;
             row_pos = 1;
@@ -78,28 +88,28 @@ class Snort {
         let board_pos = Snort.get_coords(pos);
         this.board[board_pos.row][board_pos.cell] = Players.MIN; // mark player2's move
 
-        if (Snort.is_game_over(this.board, Players.MIN)) {
-            console.log('Game over! You loose');
-            return;
-        }
-
         this.next_turn();
         this.make_move();
     }
 
     make_move() {
-        this.minimax(this.board, this.max_depth, -Infinity, +Infinity, Players.MAX);
 
-        console.log('Next move: ');
-        console.log(this.next_move);
+        if (Snort.is_game_over(this.board, Players.MAX)) {
+            this.end_game();
+            return;
+        }
 
+        let est = this.minimax(this.board, this.max_depth, -Infinity, +Infinity, Players.MAX);
         this.board[this.next_move.row][this.next_move.cell] = Players.MAX;
 
-        let cell = document.querySelector(this.board_selector +
-            ' .snort-row:nth-child(' + (this.next_move.row+1) +
+        let cell = this.container.querySelector(' .snort-row:nth-child(' + (this.next_move.row + 1) +
             ') span:nth-child(' + (this.next_move.cell + 1) + ')');
         this.paint_cell(cell);
         this.next_turn();
+
+        if (Snort.is_game_over(this.board, Players.MIN)) {
+            this.end_game();
+        }
     }
 
     static get_cell_pos(move) {
@@ -115,44 +125,9 @@ class Snort {
         }
     }
 
-    /**
-     * Function estimates quality of the move to cell_pos for player
-     *
-     * @param cell_pos
-     * @param player
-     * @param depth
-     */
-    estimate(board, pos, player, depth) {
-
-        let player2 = (player === 0) ? 1 : 0;
-        let func = (player === 0) ? Math.min : Math.max;
-
-        depth++;
-
-        if (depth < this.max_depth) {
-            let possible = this.get_possible(board, player2); // all possible moves
-            let val = -Infinity;
-
-            for (let move of  possible) {
-                let board2 = board.slice(0);
-                board2[move.row][move.cell] = player2;
-
-                if (func(this.estimate(board2), val) === val) {
-                    break;
-                }
-            }
-
-            return val;
-        } else {
-            return this.estimate_func(board);
-        }
-
-
-    }
-
     static get_possible(moves_board, player) {
         let player2 = player === 0 ? 1 : 0;
-        let board = moves_board.slice(0);
+        let board = moves_board.clone();
         let possible = [];
 
         let curr = new Iterator();
@@ -166,7 +141,7 @@ class Snort {
                 switch (curr.row) {
                     case 0:
                         Snort.mark(board, 1, curr.cell + 1); // mark bottom
-                        Snort.mark(board, 0, curr.cell + (curr.cell === 0 ? 1 : -1));
+                        Snort.mark(board, 0, (curr.cell === 0 ? 1 : 0));
                         break;
 
                     case 1:
@@ -205,9 +180,7 @@ class Snort {
 
                     case 3:
                         Snort.mark(board, curr.row - 1, curr.cell + 1); // mark top
-
-                        let k = curr.cell === 0 ? 1 : -1;
-                        Snort.mark(board, 0, curr.cell + k);
+                        Snort.mark(board, curr.row, (curr.cell === 0 ? 1 : 0));
                         break;
                 }
             }
@@ -228,86 +201,15 @@ class Snort {
         return possible;
     }
 
-    estimate_func(moves_board) {
+    static estimate_func(moves_board) {
         let player1 = Snort.get_possible(moves_board, Players.MAX).length;
         let player2 = Snort.get_possible(moves_board, Players.MIN).length;
 
-        console.log('Estimating ' + player1 + ' ' + player2);
-        // console.log(player1 / (player1 + player2));
+        if (player2 === 0) {
+            return 1;
+        }
+
         return player1 / (player1 + player2);
-
-        let board = moves_board.slice(0);
-        let possible = 0,
-            all = 0;
-
-        /* iterate through moves board, if cell is occupied by
-            player2, mark aboarding cells as N  */
-
-        for (let i = 0; i < Cells_num; i++) {
-
-            if (board[this.curr.row][this.curr.cell] === Players['MIN']) {
-
-                switch (this.curr.row) {
-                    case 0:
-                        Snort.mark(board, 1, this.curr.cell + 1); // mark bottom
-                        Snort.mark(board, 0, this.curr.cell + (this.curr.cell === 0 ? 1 : -1));
-                        break;
-
-                    case 1:
-                        if (this.curr.cell > 0 && this.curr.cell < 3) { // check all
-                            Snort.mark(board, this.curr.row - 1, this.curr.cell - 1); // top
-                            Snort.mark(board, this.curr.row + 1, this.curr.cell); // bottom
-
-                            Snort.mark(board, this.curr.row, this.curr.cell + 1); // right
-                            Snort.mark(board, this.curr.row, this.curr.cell - 1); // left
-                        } else {
-                            Snort.mark(board, this.curr.row + 1, this.curr.cell); // mark bottom
-
-                            let k = this.curr.cell === 0 ? 1 : -1;
-                            Snort.mark(board, this.curr.row, this.curr.cell + k);
-                            break;
-                        }
-
-                        break;
-
-                    case 2:
-                        if (this.curr.cell > 0 && this.curr.cell < 3) { // check all
-                            Snort.mark(board, this.curr.row - 1, this.curr.cell); // top
-                            Snort.mark(board, this.curr.row + 1, this.curr.cell - 1); // bottom
-
-                            Snort.mark(board, this.curr.row, this.curr.cell + 1); // right
-                            Snort.mark(board, this.curr.row, this.curr.cell - 1); // left
-                        } else {
-                            Snort.mark(board, this.curr.row - 1, this.curr.cell); // mark top
-
-                            let k = this.curr.cell === 0 ? 1 : -1;
-                            Snort.mark(board, this.curr.row, this.curr.cell + k);
-                            break;
-                        }
-
-                        break;
-
-                    case 3:
-                        Snort.mark(board, this.curr.row - 1, this.curr.cell + 1); // mark top
-
-                        let k = this.curr.cell === 0 ? 1 : -1;
-                        Snort.mark(board, 0, this.curr.cell + k);
-                        break;
-                }
-            }
-
-            this.next_cell();
-        }
-
-        this.curr = {row: 0, cell: 0};
-
-        for (let i = 0; i < Cells_num; i++) {
-            if (board[this.curr.row][this.curr.cell] === 'x') {
-                possible++;
-            }
-        }
-
-        return possible;
     }
 
     static mark(board, row, cell) {
@@ -320,21 +222,35 @@ class Snort {
         return Snort.get_possible(board, player).length === 0;
     }
 
-    minimax(board, depth, a, b, player) {
-        if (depth === 0) {
-            console.log('Reached depth 0');
-            return this.estimate_func(board);
+    end_game() {
+        let state = this.turn === Players.MAX ?
+            "<span class='emoji'>ﾍ(=￣∇￣)ﾉ</span>       <span>you won</span>       <span class='emoji'>」(￣▽￣」)</span>"
+            : "<span class='emoji'>‧º·(˚ ˃̣̣̥⌓˂̣̣̥ )‧º·˚</span>      you lose...     <span class='emoji'>(⌯˃̶᷄ ﹏ ˂̶᷄⌯)ﾟ</span>";
+        this.message.innerHTML = state;
+
+        let cell;
+        if (this.turn === Players.MAX) {
+            cell = this.container.querySelectorAll('tbody td')[0];
+        } else {
+            cell = this.container.querySelectorAll('tbody td')[1];
         }
 
-        console.log(depth);
+        cell.innerText = Number(cell.innerText) + 1;
+
+        this.container.querySelector('.btn').classList.remove('hidden');
+    }
+
+
+    minimax(board, depth, a, b, player) {
+
+        if (depth === 0) {
+            return Snort.estimate_func(board);
+        }
 
         let possible = Snort.get_possible(board, player);
-        console.log(board);
-        console.log(possible);
 
         if (possible.length === 0) { // game is over
-            console.log('Game over');
-            return this.estimate_func(board);
+            return player === 1 ? 0 : 1;
         }
 
         if (player === Players.MAX) {
@@ -348,7 +264,10 @@ class Snort {
 
                 if (est > maxEst) {
                     maxEst = est;
-                    this.next_move = move;
+
+                    if (depth === this.max_depth) {
+                        this.next_move = move;
+                    }
                 }
 
                 a = Math.max(a, est);
@@ -356,7 +275,6 @@ class Snort {
                 if (b <= a) {
                     break;
                 }
-
             }
 
             return maxEst;
@@ -364,13 +282,13 @@ class Snort {
             let minEst = Infinity;
 
             for (let move of possible) {
-                let move_board = board.slice(0);
+                let move_board = board.clone();
                 move_board[move.row][move.cell] = Players.MIN;
+
                 let est = this.minimax(move_board, depth - 1, a, b, Players.MAX);
 
                 if (est < minEst) {
                     minEst = est;
-                    this.next_move = move;
                 }
 
                 b = Math.min(b, est);
