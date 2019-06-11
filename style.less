@@ -1,5 +1,9 @@
 @grey: #eadfdf;
 
+@pink: pink;
+@light-pink: #ffb3b34f;
+@dark-pink: #ff2f2f4f;
+
 body {
   font-family: "Lato", Arial, sans-serif;
 }
@@ -38,8 +42,8 @@ body {
 .board {
   span {
     display: block;
-    width: 35px;
-    height: 35px;
+    width: 39px;
+    height: 39px;
 
     border: 2px dashed #c38989;
     background: #ffb3b34f;
@@ -145,3 +149,98 @@ body {
 .hidden {
   display: none;
 }
+
+//---
+
+.level {
+  position: absolute;
+  left: 100px;
+
+  p {
+    margin-bottom: 28px;
+    //padding-left: 20px;
+
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.levels-list {
+  padding: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+
+    margin-bottom: 20px;
+    padding-left: 30px;
+
+    &.active .indicator {
+      border-color: @dark-pink;
+
+      &::after, &::before {
+        display: block;
+      }
+    }
+  }
+
+  .indicator {
+    position: absolute;
+    left: 0;
+
+    display: block;
+    width: 20px;
+    height: 20px;
+
+    border: 2px solid @grey;
+    border-radius: 100%;
+
+    cursor: pointer;
+
+    &::after, &::before {
+      content: "";
+
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+
+      display: none;
+      width: 14px;
+      height: 4px;
+      margin: auto;
+
+      background-color: @pink;
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      transform: rotate(135deg);
+    }
+  }
+}
+
+//.confetti {
+//  position: absolute;
+//  width: 100vw;
+//
+//  span {
+//    position: absolute;
+//    display: block;
+//    height: 12px;
+//    width: 13px;
+//
+//    &:nth-child(2n) {
+//      background-color: @light-pink;
+//    }
+//
+//    &:nth-child(3n) {
+//      background-color: @pink;
+//    }
+//
+//    &:nth-child(5n) {
+//      background-color: @dark-pink;
+//    }
+//  }
+//}
